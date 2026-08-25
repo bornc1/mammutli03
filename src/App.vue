@@ -229,9 +229,14 @@ const routeOpacity = (index) =>
 const loadData = async () => {
   try {
     const readWorkbook = async (file) =>
-      XLSX.read(await (await fetch(`/data/${file}`)).arrayBuffer(), {
-        type: "array",
-      });
+      XLSX.read(
+        await (
+          await fetch(`${import.meta.env.BASE_URL}data/${file}`)
+        ).arrayBuffer(),
+        {
+          type: "array",
+        },
+      );
     const [deliveryBook, routeBook, placeBook] = await Promise.all(
       ["lieferung.xlsx", "strecke.xlsx", "orte.xlsx"].map(readWorkbook),
     );
@@ -284,7 +289,9 @@ const loadData = async () => {
       deliveries.value.map(async (delivery) => {
         const date = XLSX.SSF.parse_date_code(delivery.startSerial);
         const dateKey = `${date.y}-${String(date.m).padStart(2, "0")}-${String(date.d).padStart(2, "0")}`;
-        const response = await fetch(`/data/front/${dateKey}_daily.geo.json`);
+        const response = await fetch(
+          `${import.meta.env.BASE_URL}data/front/${dateKey}_daily.geo.json`,
+        );
         if (response.ok) localFrontData.set(delivery.id, await response.json());
       }),
     );
